@@ -6,6 +6,7 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include <iterator>
+#include <functional> 
 #include <sstream>
 #include <string>
 
@@ -29,6 +30,12 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 	return TRUE;
 }
 
+// Return whether first element is greater than the second
+bool UDgreater(std::string elem1, std::string elem2)
+{
+	return elem1 > elem2;
+}
+
 std::string joinList(std::vector<std::string> arr, std::string delimiter)
 {
 	if (arr.empty()) return "";
@@ -40,20 +47,7 @@ std::string joinList(std::vector<std::string> arr, std::string delimiter)
 	return str;
 }
 
-
-//Наша функция которую мы запустим из lua, перемножает два числа.
-/*static int MyLuaDllFunction(lua_State *L)
-{
-	//Получаем первый и второй параметры вызова функции из стека с проверкой каждого на число
-	
-	double x = luaL_checknumber(L, 1);
-	double y = luaL_checknumber(L, 2);
-	lua_pushnumber(L, x*y);//Возвращаемое значение
-	return (1);//Даем lua знать, количество значений возвращаемое данной функцией
-}*/
-
-
-//Наша функция которую мы запустим из lua, перемножает два числа.
+//Наша функция которую мы запустим из lua, вывод списка имен файлов с определнным разрешением и разделителем.
 static int GetListNameFiles(lua_State *L)
 {
 	size_t l = 0;
@@ -71,6 +65,8 @@ static int GetListNameFiles(lua_State *L)
 			listName.push_back(p.path().filename().string());
 		}
 	}
+	// сортировка вектора
+	std::sort(listName.begin(), listName.end(), UDgreater);
 
 	std::string strRezult = joinList(listName, delim);
 	chRezult = strRezult.data();
